@@ -1,0 +1,40 @@
+{
+  "name": "implicit-mesh",
+  "version": "1.0.0",
+  "description": "create simplicial complex meshes from an implicit function",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "keywords": [
+    "geometry",
+    "mesh",
+    "3d",
+    "signed distance",
+    "implicit function",
+    "webgl",
+    "regl",
+    "stackgl"
+  ],
+  "author": "substack",
+  "license": "BSD",
+  "dependencies": {
+    "ndarray": "^1.0.18",
+    "ndarray-fill": "^1.0.1",
+    "surface-nets": "^1.0.2"
+  },
+  "directories": {
+    "example": "example"
+  },
+  "devDependencies": {
+    "tape": "^4.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/substack/implicit-mesh.git"
+  },
+  "bugs": {
+    "url": "https://github.com/substack/implicit-mesh/issues"
+  },
+  "homepage": "https://github.com/substack/implicit-mesh#readme"
+}
