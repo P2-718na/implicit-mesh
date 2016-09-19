@@ -54,16 +54,22 @@ module.exports = function (size, src) {
     mesh = scale(size, surfaceNets(ndarray(ndata,size)))
   })
   */
-  var data = new Float32Array(size[0]*size[1]*size[2])
-  for (var i = 0; i < data.length; i++) {
-    var j = i / (data.length-1) * 2 - 1
+  //*
+  var data = new Float32Array(size[0]*size[1]*size[2]*4)
+  for (var i = 0; i < data.length; i += 4) {
+    var j = (i*0.25) / (data.length-1) * 2 - 1
     var k = (j+1)*0.5 * (data.length-1)
     var x = (k%size[0]) / (size[0]-1) * 2 - 1
     var y = (k/size[0]%size[1]) / (size[1]-1) * 2 - 1
     var z = (k/size[0]/size[1]%size[2]) / (size[2]-1) * 2 - 1
     data[i] = x*x + y*y + z*z - 0.5
   }
-  var mesh = scale(size, surfaceNets(ndarray(data,size)))
+  //*/
+  var ndata = new Float32Array(size[0]*size[1]*size[2])
+  for (var i = 0, j = 0; i < data.length; i += 4) {
+    ndata[j++] = data[i]
+  }
+  var mesh = scale(size, surfaceNets(ndarray(ndata,size)))
   return mesh
 }
 
