@@ -11,22 +11,47 @@ var build = require('implicit-mesh')
 var mesh = build(64, function (x,y,z) {
   return x*x + y*y + z*z - 0.2
 })
-console.log(mesh)
+console.log(JSON.stringify(mesh))
+```
+
+or using a shader:
+
+``` js
+var build = require('implicit-mesh/shader')
+var mesh = build(64, `
+  float surface (vec3 p) {
+    return length(p) - 0.5;
+  }
+`)
+console.log(JSON.stringify(mesh))
+```
+
+either way, you can use [meshviewer][3]:
+
+```
+$ electron-spawn shader.js | meshviewer
+$ node js.js | meshviewer
 ```
 
 ![sphere](images/sphere.jpg)
 
+[3]: https://npmjs.com/package/meshviewer
+
 # api
 
 ``` js
-var build = require('implicit-mesh')
+var js = require('implicit-mesh')
+var shader = require('implicit-mesh/shader')
 ```
 
-## var mesh = build(size, fn)
+## var mesh = js(opts, fn)
 
-Build a 3d `mesh` with resolution `size` from an implicit function `fn(x,y,z)`.
+Build a 3d `mesh` with resolution `opts.size` from an implicit function
+`fn(x,y,z)`.
 
-`size` can be a number or an array of numbers, one for each coordinate.
+If `opts` is a number of array, it is interpreted as the `opts.size`.
+
+`opts.size` can be a number or an array of numbers, one for each coordinate.
 
 The `f(x,y,z)` coordinates are in the domain `[-1,1]` and the resulting mesh
 coordinates are in the range `[-1,1]` in each dimension.
@@ -42,6 +67,15 @@ To get the surface normals you can use the [angle-normals][2] package:
 var angleNormals = require('angle-normals')
 var normals = angleNormals(mesh.cells, mesh.positions)
 ```
+
+## var mesh = shader(opts, src)
+
+Build a mesh from a glsl function defined in the string `src` and:
+
+* `opts.size` - resolution to sample the implicit
+* `opts.precision` - default: 'medium'
+
+You should define a function `float surface(vec3 pos)`.
 
 # install
 
