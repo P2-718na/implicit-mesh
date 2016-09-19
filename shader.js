@@ -5,8 +5,11 @@ var scale = require('./scale.js')
 
 module.exports = function (size, src) {
   if (typeof size === 'number') size = [size,size,size]
-  /*
-  var regl = REGL()
+  var len = size[0] * size[1] * size[2]
+  var sx = st(size[0]), sy = st(size[1]), sz = st(size[2])
+  //*
+  var canvas = document.createElement('canvas')
+  var regl = REGL(canvas)
   //regl.limits.maxTextureSize
   var draw = regl({
     framebuffer: regl.prop('framebuffer'),
@@ -14,14 +17,13 @@ module.exports = function (size, src) {
       precision mediump float;
       ${src}
       void main () {
-        float ipos = (gl_FragCoord.x+1.0)*${st(0.5*size[0]*size[1]*size[2])};
-        vec3 pos = vec3(
-          mod(ipos,${st(size[0])})*${st(2/size[0])}-1.0,
-          mod(ipos*${st(1/size[1])},${st(size[1])})*${st(2/size[1])}-1.0,
-          ipos*${st(1/size[0]/size[1])}*${st(2/size[2])}-1.0
-        );
-        float x = surface(pos);
-        gl_FragColor = vec4(x*0.0001+0.5,0,0,1);
+        float j = gl_FragCoord.x;
+        float k = (j+1.0)*0.5 * ${st(len-1)};
+        float x = mod(k,${sx}) / (${sx}-1.0)*2.0-1.0;
+        float y = mod(k/${sx},${sy}) / (${sy}-1.0)*2.0-1.0;
+        float z = mod(k/${sx}/${sy},${sz}) / (${sz}-1.0)*2.0-1.0;
+        float v = surface(vec3(x,y,z));
+        gl_FragColor = vec4(clamp(v+0.5,0.0,1.0),0,0,1);
       }
     `,
     vert: `
@@ -33,7 +35,10 @@ module.exports = function (size, src) {
     attributes: {
       position: [-4,4,4,4,0,-4]
     },
-    count: 3
+    count: 3,
+    depth: {
+      enable: false
+    }
   })
   regl.clear({ color: [0,0,0,1], depth: true })
   var fb = regl.framebuffer({
@@ -46,15 +51,14 @@ module.exports = function (size, src) {
   draw({ framebuffer: fb }, function () {
     regl.draw()
     var data = regl.read()
-    var ndata = new Float32Array(size[0]*size[1]*size[2])
+    var ndata = new Float32Array(len)
     for (var i = 0, j = 0; i < data.length; i += 4) {
-      ndata[j++] = (data[i] - 128) / 128
+      ndata[j++] = (data[i] - 127.5) / 127.5
     }
-    console.log(ndata)
     mesh = scale(size, surfaceNets(ndarray(ndata,size)))
   })
-  */
-  //*
+  //*/
+  /*
   var data = new Float32Array(size[0]*size[1]*size[2]*4)
   for (var i = 0; i < data.length; i += 4) {
     var j = (i*0.25) / (data.length-1) * 2 - 1
@@ -62,14 +66,14 @@ module.exports = function (size, src) {
     var x = (k%size[0]) / (size[0]-1) * 2 - 1
     var y = (k/size[0]%size[1]) / (size[1]-1) * 2 - 1
     var z = (k/size[0]/size[1]%size[2]) / (size[2]-1) * 2 - 1
-    data[i] = x*x + y*y + z*z - 0.5
+    data[i] = (x*x + y*y + z*z - 0.5) * 127.5 + 127.5
   }
-  //*/
   var ndata = new Float32Array(size[0]*size[1]*size[2])
   for (var i = 0, j = 0; i < data.length; i += 4) {
-    ndata[j++] = data[i]
+    ndata[j++] = (data[i] - 127.5) * 127.5
   }
   var mesh = scale(size, surfaceNets(ndarray(ndata,size)))
+  //*/
   return mesh
 }
 
