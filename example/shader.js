@@ -17,7 +17,7 @@ regl.frame(() => {
 
 function sphere (regl) {
   var model = []
-  var mesh = build(25, `
+  var mesh = build(64, `
     float surface (vec3 p) {
       return length(p) - 0.5;
     }
