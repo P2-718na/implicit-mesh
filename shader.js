@@ -14,13 +14,14 @@ module.exports = function (size, src) {
       precision mediump float;
       ${src}
       void main () {
-        float ipos = (gl_FragCoord.x+1.0)*0.5 * ${st(size[0]*size[1]*size[2])};
+        float ipos = (gl_FragCoord.x+1.0)*${st(0.5*size[0]*size[1]*size[2])};
         vec3 pos = vec3(
           mod(ipos,${st(size[0])})*${st(2/size[0])}-1.0,
           mod(ipos*${st(1/size[1])},${st(size[1])})*${st(2/size[1])}-1.0,
-          ipos*${st(1/size[1]/size[2])}*${st(2/size[2])}-1.0
+          ipos*${st(1/size[0]/size[1])}*${st(2/size[2])}-1.0
         );
-        gl_FragColor = vec4(surface(pos),0,0,1);
+        float x = surface(pos);
+        gl_FragColor = vec4(x*0.0001+0.5,0,0,1);
       }
     `,
     vert: `
@@ -47,16 +48,19 @@ module.exports = function (size, src) {
     var data = regl.read()
     var ndata = new Float32Array(size[0]*size[1]*size[2])
     for (var i = 0, j = 0; i < data.length; i += 4) {
-      ndata[j++] = data[i]
+      ndata[j++] = (data[i] - 128) / 128
     }
-    mesh = surfaceNets(ndarray(ndata,size))
+    console.log(ndata)
+    mesh = scale(size, surfaceNets(ndarray(ndata,size)))
   })
   */
   var data = new Float32Array(size[0]*size[1]*size[2])
   for (var i = 0; i < data.length; i++) {
-    var x = (i%size[0])*2/size[0]-1
-    var y = (i/size[0]%size[1])*2/size[1]-1
-    var z = (i/size[0]/size[1]%size[2])*2/size[2]-1
+    var j = i / (data.length-1) * 2 - 1
+    var k = (j+1)*0.5 * (data.length-1)
+    var x = (k%size[0]) / (size[0]-1) * 2 - 1
+    var y = (k/size[0]%size[1]) / (size[1]-1) * 2 - 1
+    var z = (k/size[0]/size[1]%size[2]) / (size[2]-1) * 2 - 1
     data[i] = x*x + y*y + z*z - 0.5
   }
   var mesh = scale(size, surfaceNets(ndarray(data,size)))
