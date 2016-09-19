@@ -7,6 +7,7 @@ module.exports = function (size, src) {
   if (typeof size === 'number') size = [size,size,size]
   var len = size[0] * size[1] * size[2]
   var sx = st(size[0]), sy = st(size[1]), sz = st(size[2])
+  var isx = st(2/(size[0]-1)), isy = st(2/(size[1]-1)), isz = st(2/(size[2]-1))
   var sq = Math.ceil(Math.sqrt(len))
   var canvas = document.createElement('canvas')
   var regl = REGL(canvas)
@@ -16,9 +17,9 @@ module.exports = function (size, src) {
       precision mediump float;
       ${src}
       float isurface (float i) {
-        float x = mod(i,${sx}) / (${sx}-1.0)*2.0-1.0;
-        float y = mod(i/${sx},${sy}) / (${sy}-1.0)*2.0-1.0;
-        float z = mod(i/${sx}/${sy},${sz}) / (${sz}-1.0)*2.0-1.0;
+        float x = mod(i,${sx})*${isx}-1.0;
+        float y = mod(i/${sx},${sy})*${isy}-1.0;
+        float z = mod(i/${sx}/${sy},${sz})*${isz}-1.0;
         return clamp(0.5+surface(vec3(x,y,z)),0.0,1.0);
       }
       void main () {
