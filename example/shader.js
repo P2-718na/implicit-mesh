@@ -1,8 +1,8 @@
 var build = require('../shader')
-var mesh = build(25, `
+var mesh = build(50, `
   float surface (vec3 p) {
-    return length(p) - 0.5;
+    return length(p) - 0.9;
   }
 `)
 console.log(JSON.stringify(mesh))
-process.exit()
+setTimeout(process.exit, 2000)

@@ -16,9 +16,16 @@ module.exports = function (opts, src) {
 
   var sx = st(size[0]), sy = st(size[1]), sz = st(size[2])
   var isx = st(2/(size[0]-1)), isy = st(2/(size[1]-1)), isz = st(2/(size[2]-1))
+  var isxy = st(1/(size[0]*size[1]))
   var sq = Math.ceil(Math.sqrt(len))
   var canvas = document.createElement('canvas')
   var regl = REGL(canvas)
+  var magic = {
+    '64,64,64': (sq + size[0]*4)*4,
+    '128,128,128': (sq + size[0]*16)*4,
+    '100,100,100': (sq + size[0]*10)*4,
+    '50,50,50': (sq + size[0]*2+18)*4
+  }
   var draw = regl({
     framebuffer: regl.prop('framebuffer'),
     frag: `
@@ -27,11 +34,12 @@ module.exports = function (opts, src) {
       float isurface (float i) {
         float x = mod(i,${sx})*${isx}-1.0;
         float y = mod(i/${sx},${sy})*${isy}-1.0;
-        float z = mod(i/${sx}/${sy},${sz})*${isz}-1.0;
+        float z = mod(i*${isxy},${sz})*${isz}-1.0;
         return clamp(0.5+surface(vec3(x,y,z)),0.0,1.0);
       }
       void main () {
-        float i = (gl_FragCoord.x + gl_FragCoord.y * ${st(sq)}) * 4.0;
+        float i = (gl_FragCoord.x+gl_FragCoord.y*${st(sq)})*4.0
+          + ${st(magic[size]||0)};
         gl_FragColor = vec4(
           isurface(i+0.0),
           isurface(i+1.0),
@@ -65,13 +73,10 @@ module.exports = function (opts, src) {
   draw({ framebuffer: fb }, function () {
     regl.draw()
     var data = regl.read()
+    var iv = 1/127.5
     var ndata = new Float32Array(len)
     for (var i = 0; i < data.length; i++) {
-      var x = i%size[0]
-      var y = Math.floor(i/size[0])%size[1]
-      var z = Math.floor(i/size[0]/size[1])%size[2]
-      var j = x + y*size[0] + z*size[0]*size[1]
-      ndata[j] = (data[i] - 127.5) / 127.5
+      ndata[i] = (data[i] - 127.5) * iv
     }
     mesh = scale(size, surfaceNets(ndarray(ndata,size)))
   })
