@@ -26,16 +26,16 @@ var mesh = build(64, `
 console.log(JSON.stringify(mesh))
 ```
 
-either way, you can use [meshviewer][3]:
+either way, you can use [meshview][3]:
 
 ```
-$ electron-spawn shader.js | meshviewer
-$ node js.js | meshviewer
+$ electron-spawn shader.js | meshview
+$ node js.js | meshview
 ```
 
 ![sphere](images/sphere.jpg)
 
-[3]: https://npmjs.com/package/meshviewer
+[3]: https://npmjs.com/package/meshview
 
 # api
 
