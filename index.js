@@ -5,8 +5,8 @@ const scale = require("./scale.js")
 
 const defaultParameters = {
   resolution: 64,
-  domain: [[-1, 1], [-1, 1], [-1, 1], [-1, 1]],
-  dimension: 4
+  domain: [[-1, 1], [-1, 1], [-1, 1]],
+  dimension: 3
 }
 
 module.exports = (f, parameters = defaultParameters) => {
@@ -15,7 +15,7 @@ module.exports = (f, parameters = defaultParameters) => {
   // We need a n-dimensional array to use as lattice
   const data = ndarray(
     new Float32Array(Math.pow(resolution, dimension)),
-    new Float32Array(dimension).map(e => resolution)
+    new Float32Array(dimension).map(_ => resolution)
   );
 
   // Generate simplicial complex mesh from function
