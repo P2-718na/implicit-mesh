@@ -1,24 +1,29 @@
 # implicit-mesh
-
-create simplicial complex meshes from an [implicit function][1]
-
-[1]: http://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+Create simplicial complex meshes from an implicit function.
 
 # example
 
 ``` js
-var build = require('implicit-mesh')
-var mesh = build(64, function (x,y,z) {
-  return x*x + y*y + z*z - 0.2
-})
+const build = require('implicit-mesh')
+
+const parameters = {
+  resolution: 64,
+  domain: [[-1, 1], [-1, 1], [-1, 1], [-1, 1]],
+  dimension: 4
+}
+
+const mesh = build(function (x,y,z) {
+  return x*x + y*y + z*z + w*w - 0.2
+}, parameters)
+
 console.log(JSON.stringify(mesh))
 ```
 
-or using a shader:
+Or using a shader (not supported for dimension=4):
 
 ``` js
-var build = require('implicit-mesh/shader')
-var mesh = build(64, `
+const build = require('implicit-mesh/shader')
+const mesh = build(64, `
   float surface (vec3 p) {
     return length(p) - 0.5;
   }
@@ -26,7 +31,7 @@ var mesh = build(64, `
 console.log(JSON.stringify(mesh))
 ```
 
-either way, you can use [meshview][3]:
+Either way, you can use [meshview][3]:
 
 ```
 $ electron-spawn shader.js | meshview
