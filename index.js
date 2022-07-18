@@ -10,7 +10,7 @@ const defaultParameters = {
 }
 
 module.exports = (f, parameters = defaultParameters) => {
-  const { resolution, dimension } = parameters;
+  const { resolution, dimension, domain } = parameters;
 
   // We need a n-dimensional array to use as lattice
   const data = ndarray(
@@ -27,7 +27,7 @@ module.exports = (f, parameters = defaultParameters) => {
     }
   ))
 
-  return complex;
+  //return complex; // todo understand scaling logic
   // We don't want to scale things, for now.
-  //return scale(resolution, complex)
+  return scale(resolution, complex)
 }
