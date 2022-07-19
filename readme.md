@@ -19,22 +19,9 @@ const mesh = build(function (x,y,z) {
 console.log(JSON.stringify(mesh))
 ```
 
-Or using a shader (not supported for dimension=4):
-
-``` js
-const build = require('implicit-mesh/shader')
-const mesh = build(64, `
-  float surface (vec3 p) {
-    return length(p) - 0.5;
-  }
-`)
-console.log(JSON.stringify(mesh))
-```
-
 Either way, you can use [meshview][3]:
 
 ```
-$ electron-spawn shader.js | meshview
 $ node js.js | meshview
 ```
 
@@ -46,7 +33,6 @@ $ node js.js | meshview
 
 ``` js
 var js = require('implicit-mesh')
-var shader = require('implicit-mesh/shader')
 ```
 
 ## var mesh = js(opts, fn)
@@ -72,15 +58,6 @@ To get the surface normals you can use the [angle-normals][2] package:
 var angleNormals = require('angle-normals')
 var normals = angleNormals(mesh.cells, mesh.positions)
 ```
-
-## var mesh = shader(opts, src)
-
-Build a mesh from a glsl function defined in the string `src` and:
-
-* `opts.size` - resolution to sample the implicit
-* `opts.precision` - default: 'medium'
-
-You should define a function `float surface(vec3 pos)`.
 
 # install
 
