@@ -6,23 +6,43 @@ const scale = require("./scale.js")
 const defaultParameters = {
   resolution: 64,
   domain: [[-1, 1], [-1, 1], [-1, 1]],
-  dimension: 3
+  dimension: 3,
+}
+
+const parseParameters = ({ resolution, dimension, domain}) => {
+  resolution ??= defaultParameters.resolution;
+  dimension  ??= defaultParameters.dimension;
+  domain     ??= defaultParameters.domain
+
+  if (typeof resolution === "number") {
+    resolution = new Float32Array(dimension).map(_ => resolution)
+  }
+
+  if (resolution.some(e => e <= 1)) {
+    throw "Invalid resolution: must be an integer greater than 1."
+  }
+
+  return {
+    resolution,
+    dimension,
+    domain,
+  }
 }
 
 module.exports = (f, parameters = defaultParameters) => {
-  const { resolution, dimension, domain } = parameters;
+  const { resolution } = parseParameters(parameters)
 
   // We need a n-dimensional array to use as lattice
   const data = ndarray(
-    new Float32Array(Math.pow(resolution, dimension)),
-    new Float32Array(dimension).map(_ => resolution)
+    new Float32Array(resolution.reduce((acc, res_i) => acc * res_i, 1)),
+    resolution
   );
 
   // Generate simplicial complex mesh from function
   const complex = surfaceNets(
     fill(data, (...x) => {
       return f(
-        ...(x.map(xi => xi / resolution * 2 - 1)) // Todo why this calculations?
+        ...(x.map((xi, i) => xi / resolution[i] * 2 - 1)) // Todo why this calculations?
       )
     }
   ))
